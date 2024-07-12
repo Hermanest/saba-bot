@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>12</LangVersion>
+        <IsPackable>false</IsPackable>
+        <Authors>Hermanest</Authors>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Discord.Net" Version="3.15.2" />
+      <PackageReference Include="JetBrains.Annotations" Version="2024.2.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0-preview.6.24327.4" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0-preview.6.24327.4" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0-preview.6.24327.7" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0-preview.6.24327.7" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Zenject">
+        <HintPath>..\Libs\Zenject.dll</HintPath>
+      </Reference>
+      <Reference Include="Zenject-ReflectionBaking">
+        <HintPath>..\Libs\Zenject-ReflectionBaking.dll</HintPath>
+      </Reference>
+      <Reference Include="Zenject-Signals">
+        <HintPath>..\Libs\Zenject-Signals.dll</HintPath>
+      </Reference>
+      <Reference Include="Zenject-usage">
+        <HintPath>..\Libs\Zenject-usage.dll</HintPath>
+      </Reference>
+      <Reference Include="Zenject.ReflectionBaking.Mono.Cecil">
+        <HintPath>..\Libs\Zenject.ReflectionBaking.Mono.Cecil.dll</HintPath>
+      </Reference>
+      <Reference Include="Zenject.ReflectionBaking.Mono.Cecil.Mdb">
+        <HintPath>..\Libs\Zenject.ReflectionBaking.Mono.Cecil.Mdb.dll</HintPath>
+      </Reference>
+      <Reference Include="Zenject.ReflectionBaking.Mono.Cecil.Pdb">
+        <HintPath>..\Libs\Zenject.ReflectionBaking.Mono.Cecil.Pdb.dll</HintPath>
+      </Reference>
+      <Reference Include="Zenject.ReflectionBaking.Mono.Cecil.Rocks">
+        <HintPath>..\Libs\Zenject.ReflectionBaking.Mono.Cecil.Rocks.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

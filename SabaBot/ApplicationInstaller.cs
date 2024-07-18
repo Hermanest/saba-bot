@@ -43,11 +43,13 @@ internal class ApplicationInstaller : Installer {
     private void InstallServices() {
         Container.BindInterfacesTo<DiscordLoggerService>().AsSingle();
         Container.BindInterfacesTo<InteractionManagementService>().AsSingle();
-        Container.BindInterfacesTo<MessageRewindService>().AsSingle();
+        Container.BindInterfacesTo<OpenAIChatBot>().AsSingle();
+        //Container.BindInterfacesTo<MessageRewindChatBot>().AsSingle();
+        Container.BindInterfacesTo<MessageService>().AsSingle();
     }
     
     private void InstallLogger() {
-        var factory = LoggerFactory.Create(x => x.AddConsole());
+        var factory = LoggerFactory.Create(x => x.AddConsole().SetMinimumLevel(LogLevel.Debug));
         var logger = factory.CreateLogger("Bot");
         Container.Bind<ILoggerFactory>().FromInstance(factory).AsSingle();
         Container.Bind<ILogger>().FromInstance(logger).AsTransient();

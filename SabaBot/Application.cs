@@ -8,7 +8,10 @@ internal static class Application {
 
     private static readonly ApplicationConfig sampleConfig = new(
         "your-token-here",
-        "your-db-address-here"
+        "your-db-address-here",
+        "your-llama-address-here",
+        "your-llama-model-here",
+        "your-llama-prompt-here"
     );
 
     private static readonly DiContainer applicationContainer = new();

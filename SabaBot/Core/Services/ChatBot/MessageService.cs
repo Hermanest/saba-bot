@@ -4,7 +4,11 @@ using SabaBot.Database;
 
 namespace SabaBot;
 
-internal class MessageRewindService(DiscordSocketClient client, ApplicationContext context) : IService {
+internal class MessageService(
+    DiscordSocketClient client,
+    ApplicationContext context,
+    IChatBot chatBot
+) : IService {
     public void Start() {
         client.MessageReceived += HandleMessageReceived;
     }
@@ -21,7 +25,7 @@ internal class MessageRewindService(DiscordSocketClient client, ApplicationConte
 
     private async Task HandleMessageReceived(SocketMessage message) {
         if (message is not SocketUserMessage userMessage || message.Author is not IGuildUser user) return;
-        if (message.Author.Id == client.CurrentUser.Id) return;
+        if (message.Author.IsBot) return;
         //checking
         var settings = await GetSettings(user.Guild.Id);
         var mentioned = message.MentionedUsers.Any(x => x.Id == client.CurrentUser.Id);
@@ -35,7 +39,7 @@ internal class MessageRewindService(DiscordSocketClient client, ApplicationConte
         await context.SaveChangesAsync();
     }
 
-    private static async Task<bool> CheckAutomaticReplyNeeded(RewindSettings settings, IUserMessage message) {
+    private async Task<bool> CheckAutomaticReplyNeeded(RewindSettings settings, IUserMessage message) {
         if (settings.EnableAutomaticReplies && settings.CooldownCounter >= settings.AutomaticRepliesCooldown) {
             await Reply(settings, message);
             return true;
@@ -44,29 +48,17 @@ internal class MessageRewindService(DiscordSocketClient client, ApplicationConte
         return false;
     }
 
-    private static async Task<bool> CheckReplyNeeded(RewindSettings settings, IUserMessage message, bool mentioned) {
+    private async Task<bool> CheckReplyNeeded(RewindSettings settings, IUserMessage message, bool mentioned) {
         if (!settings.EnablePingReplies || !mentioned) return false;
         await Reply(settings, message);
         return true;
     }
 
-    private static async Task Reply(RewindSettings settings, IUserMessage message) {
+    private async Task Reply(RewindSettings settings, IUserMessage message) {
         settings.CooldownCounter = 0;
-        var rewindMessage = GetRewindMessage(settings);
-        if (rewindMessage == null) return;
-        var text = rewindMessage.Text;
-        await message.ReplyAsync(text);
+        await chatBot.ReplyAsync(settings, message);
     }
-
-    private static RewindMessage? GetRewindMessage(RewindSettings settings) {
-        var count = settings.Messages.Count;
-        if (count == 0) return null;
-        var index = new Random().Next(0, count);
-        var message = settings.Messages[index];
-        settings.Messages.RemoveAt(index);
-        return message;
-    }
-
+    
     private static void AddRewindMessage(RewindSettings settings, IUserMessage message) {
         if (string.IsNullOrEmpty(message.Content)) return;
         var rewindMessage = new RewindMessage {

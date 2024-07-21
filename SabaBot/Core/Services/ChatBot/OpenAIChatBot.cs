@@ -14,6 +14,8 @@ namespace SabaBot;
 
 internal class OpenAIChatBot(
     ApplicationConfig config,
+    ApplicationContext context,
+    ILocalization localization,
     [InjectOptional] ILogger? logger = null,
     [InjectOptional] ILoggerFactory? loggerFactory = null
 ) : IChatBot {
@@ -32,32 +34,31 @@ internal class OpenAIChatBot(
         );
     }
 
-    public void Dispose() { }
-
     public async Task ReplyAsync(RewindSettings settings, IUserMessage message) {
         if (_chatCompletionService == null) {
             await message.ReplyAsync("AI ChatBot is not set up.");
             return;
         }
         var stopwatch = new Stopwatch();
-        //
-        var prompt = CreatePrompt(message);
+        //forming prompt
+        var user = message.Author as IGuildUser;
+        var guildSettings = await context.EnsureSettingsCreated(user!.GuildId);
+        var prompt = CreatePrompt(guildSettings.Locale, message);
         logger?.LogDebug($"Requesting with prompt: {prompt.Last()}");
-        //
+        //requesting
         stopwatch.Start();
         var responseEnumerable = _chatCompletionService.GetStreamingChatMessageContentsAsync(prompt);
         var response = await responseEnumerable.AggregateAsync("", (current, line) => current + line.Content);
         logger?.LogInformation($"Generation took {stopwatch.Elapsed}. Responding.");
         stopwatch.Stop();
-        //
+        //replying
         await message.ReplyAsync(response);
     }
 
-    private ChatHistory CreatePrompt(IUserMessage message) {
+    private ChatHistory CreatePrompt(string locale, IUserMessage message) {
         //system prompt
-        var definedPrompt = config.LlamaPrompt;
+        var definedPrompt = localization[locale, "LlamaPrompt"];
         var systemPrompt = $"Use this info to properly form your answer: {definedPrompt}";
-        systemPrompt += $"Sender name is {message.Author.Username}";
         //use prompt
         var userPrompt = CleanupPrompt(message.Content);
         //making chat history
@@ -67,13 +68,17 @@ internal class OpenAIChatBot(
         var referencedMessage = message.ReferencedMessage;
         if (referencedMessage != null) {
             var referencedPrompt = CleanupPrompt(referencedMessage.Content);
-            chatHistory.AddMessage(AuthorRole.Assistant, referencedPrompt);
+            AddUserMessage(chatHistory, referencedPrompt, referencedMessage.Author.Username);
         }
         if (!userPrompt.IsNullOrEmpty()) {
-            chatHistory.AddMessage(AuthorRole.User, userPrompt);
+            AddUserMessage(chatHistory, userPrompt, message.Author.Username);
         }
         //
         return chatHistory;
+    }
+
+    private static void AddUserMessage(ChatHistory history, string message, string author) {
+        history.AddMessage(AuthorRole.User, $"Author: {author}\n{message}");
     }
 
     private static string CleanupPrompt(string content) {

@@ -1,5 +1,5 @@
 ﻿namespace SabaBot;
 
-internal interface IService : IDisposable {
+internal interface IService {
     void Start();
 }

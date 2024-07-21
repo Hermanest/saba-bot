@@ -15,6 +15,7 @@ internal static class Application {
     );
 
     private static readonly DiContainer applicationContainer = new();
+    private static readonly TaskCompletionSource taskCompletionSource = new();
 
     private static async Task Main(string[] args) {
         //loading config
@@ -23,7 +24,11 @@ internal static class Application {
         //installing
         applicationContainer.Bind<ApplicationConfig>().FromInstance(config!).AsSingle();
         applicationContainer.Install<ApplicationInstaller>();
-        await Task.Delay(-1);
+        await taskCompletionSource.Task;
+    }
+
+    public static void Terminate() {
+        taskCompletionSource.SetCanceled();
     }
 
     private static bool TryLoadConfig(string path, out ApplicationConfig? config) {

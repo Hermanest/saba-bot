@@ -41,6 +41,7 @@ internal class ApplicationInstaller : Installer {
     }
 
     private void InstallServices() {
+        Container.Bind(typeof(ISystemService), typeof(ILocalization)).To<Localization>().AsSingle();
         Container.BindInterfacesTo<DiscordLoggerService>().AsSingle();
         Container.BindInterfacesTo<InteractionManagementService>().AsSingle();
         Container.BindInterfacesTo<OpenAIChatBot>().AsSingle();

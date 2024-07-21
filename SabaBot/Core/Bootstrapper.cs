@@ -5,17 +5,26 @@ using Zenject;
 
 namespace SabaBot;
 
-internal class Bootstrapper : IDisposable, IAsyncDisposable {
-    private DiscordSocketClient? _client;
-
+internal class Bootstrapper {
     [Inject]
     public async void Start(
         DiscordSocketClient client,
         ApplicationConfig config,
         ApplicationContext context,
+        [InjectOptional] IEnumerable<ISystemService>? systemServices,
         [InjectOptional] IEnumerable<IService>? services
     ) {
-        _client = client;
+        //bootstrapping system services
+        if (systemServices != null) {
+            try {
+                // system services are required so if at least one
+                // has failed to load we are stopping the whole application
+                BootstrapServices(systemServices);
+            } catch (Exception) {
+                Application.Terminate();
+                return;
+            }
+        }
         await client.LoginAsync(TokenType.Bot, config.Token);
         await client.StartAsync();
         //bootstrapping services
@@ -28,13 +37,5 @@ internal class Bootstrapper : IDisposable, IAsyncDisposable {
         foreach (var service in services) {
             service.Start();
         }
-    }
-
-    public void Dispose() {
-        _client?.Dispose();
-    }
-
-    public async ValueTask DisposeAsync() {
-        if (_client != null) await _client.DisposeAsync();
     }
 }

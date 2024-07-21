@@ -34,6 +34,13 @@ public class ApplicationContext : DbContext {
                 x => x.Messages,
                 x => x.WithOwner()
             );
+        modelBuilder.Entity<GuildSettings>()
+            .OwnsOne(x => x.RewardSettings)
+            .OwnsOne(x => x.MessageTemplate)
+            .OwnsMany(
+                x => x.Attachments,
+                x => x.WithOwner()
+            );
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {

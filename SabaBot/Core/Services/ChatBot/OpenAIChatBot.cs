@@ -49,6 +49,9 @@ internal class OpenAIChatBot(
         stopwatch.Start();
         var responseEnumerable = _chatCompletionService.GetStreamingChatMessageContentsAsync(prompt);
         var response = await responseEnumerable.AggregateAsync("", (current, line) => current + line.Content);
+        if (response.Length > 2000) {
+            response = response[..2000];
+        }
         logger?.LogInformation($"Generation took {stopwatch.Elapsed}. Responding.");
         stopwatch.Stop();
         //replying

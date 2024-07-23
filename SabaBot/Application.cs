@@ -27,8 +27,8 @@ internal static class Application {
         await taskCompletionSource.Task;
     }
 
-    public static void Terminate() {
-        taskCompletionSource.SetCanceled();
+    public static void Terminate(Exception ex) {
+        taskCompletionSource.SetException(ex);
     }
 
     private static bool TryLoadConfig(string path, out ApplicationConfig? config) {

@@ -20,8 +20,8 @@ internal class Bootstrapper {
                 // system services are required so if at least one
                 // has failed to load we are stopping the whole application
                 BootstrapServices(systemServices);
-            } catch (Exception) {
-                Application.Terminate();
+            } catch (Exception ex) {
+                Application.Terminate(ex);
                 return;
             }
         }

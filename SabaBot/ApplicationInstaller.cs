@@ -44,8 +44,8 @@ internal class ApplicationInstaller : Installer {
         Container.Bind(typeof(ISystemService), typeof(ILocalization)).To<Localization>().AsSingle();
         Container.BindInterfacesTo<DiscordLoggerService>().AsSingle();
         Container.BindInterfacesTo<InteractionManagementService>().AsSingle();
-        Container.BindInterfacesTo<OpenAIChatBot>().AsSingle();
-        //Container.BindInterfacesTo<MessageRewindChatBot>().AsSingle();
+        //Container.BindInterfacesTo<OpenAIChatBot>().AsSingle();
+        Container.BindInterfacesTo<MessageRewindChatBot>().AsSingle();
         Container.BindInterfacesTo<MessageService>().AsSingle();
     }
     

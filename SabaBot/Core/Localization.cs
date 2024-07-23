@@ -4,10 +4,16 @@ namespace SabaBot;
 
 internal class Localization(ApplicationConfig config) : ISystemService, ILocalization {
     private static readonly string[] localizationKeys = [
-        "LlamaPrompt"
+        "LlamaPrompt",
+        "GayMessage",
+        "LoveMessage",
+        "LiarMessage",
+        "AltLiarMessage",
+        "NotLiarMessage"
     ];
 
     public IReadOnlyCollection<string> Locales => _locales.Keys;
+    public string DefaultLocale => "en";
 
     public string this[string locale, string key] => Get(locale, key);
 

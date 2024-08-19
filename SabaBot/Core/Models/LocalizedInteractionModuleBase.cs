@@ -11,13 +11,17 @@ public abstract class LocalizedInteractionModuleBase : InjectableInteractionModu
         var guildId = Context.Guild?.Id;
         var locale = _localization.DefaultLocale;
         if (guildId != null) {
-            var settings = await GetSettings();
+            var settings = await GetSettingsAsync();
             locale = settings.Locale;
         }
         return _localization[locale, key];
     }
 
-    protected Task<GuildSettings> GetSettings() {
+    protected Task<GuildSettings> GetSettingsAsync() {
         return DbContext.EnsureSettingsCreated(Context.Guild.Id);
+    }
+    
+    protected Task SaveSettingsAsync() {
+        return DbContext.SaveChangesAsync();
     }
 }

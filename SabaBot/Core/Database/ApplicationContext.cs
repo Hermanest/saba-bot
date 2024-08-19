@@ -1,10 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Zenject;
 
 namespace SabaBot.Database;
 
 public class ApplicationContext : DbContext {
+    [UsedImplicitly]
+    public ApplicationContext() {
+        // do not remove, this constructor is used for migrations
+    }
+    
+    [Inject]
     public ApplicationContext(ApplicationConfig config, [InjectOptional] ILoggerFactory? loggerFactory) {
         _config = config;
         _loggerFactory = loggerFactory;
@@ -39,6 +46,12 @@ public class ApplicationContext : DbContext {
             .OwnsOne(x => x.MessageTemplate)
             .OwnsMany(
                 x => x.Attachments,
+                x => x.WithOwner()
+            );
+        modelBuilder.Entity<GuildSettings>()
+            .OwnsOne(x => x.ReactionChampSettings)
+            .OwnsMany(
+                x => x.DeletedMessages,
                 x => x.WithOwner()
             );
     }

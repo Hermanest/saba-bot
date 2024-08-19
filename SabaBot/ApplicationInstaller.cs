@@ -15,7 +15,8 @@ internal class ApplicationInstaller : Installer {
         Container.BindInterfacesAndSelfTo<ZenjectServiceProvider>().AsSingle().Lazy();
         //base dependencies
         var config = new DiscordSocketConfig {
-            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent
+            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent,
+            MessageCacheSize = 1000
         };
         var socketClient = new DiscordSocketClient(config);
         Container.Bind<DiscordSocketClient>().FromInstance(socketClient).AsSingle().Lazy();
@@ -47,6 +48,7 @@ internal class ApplicationInstaller : Installer {
         //Container.BindInterfacesTo<OpenAIChatBot>().AsSingle();
         Container.BindInterfacesTo<MessageRewindChatBot>().AsSingle();
         Container.BindInterfacesTo<MessageService>().AsSingle();
+        Container.BindInterfacesTo<ReactionChampService>().AsSingle();
     }
     
     private void InstallLogger() {

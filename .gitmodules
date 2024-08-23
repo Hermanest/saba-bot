@@ -1,0 +1,3 @@
+[submodule "Zenject"]
+	path = Zenject
+	url = https://github.com/Hermanest/Zenject

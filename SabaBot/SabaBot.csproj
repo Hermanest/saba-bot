@@ -10,6 +10,7 @@
         <Authors>Hermanest</Authors>
         <ZenjectPath>..\Zenject</ZenjectPath>
         <ZenjectBuildPath>$(ZenjectPath)\NonUnityBuild\Bin\$(Configuration)\</ZenjectBuildPath>
+        <ZenjectProject>$(ZenjectPath)\UnityProject\Assets\Plugins\Zenject\Source\Zenject.csproj</ZenjectProject>
     </PropertyGroup>
 
     <ItemGroup>
@@ -36,9 +37,11 @@
     <!-- Building Zenject-->
     <Target Name="BuildZenject" BeforeTargets="PrepareForBuild">
         <Message Importance="high" Text="Building Zenject..."/>
+        <!-- Restoring nugets -->
+        <Message Importance="high" Text="Restoring nugets..."/>
+        <MSBuild Projects="$(ZenjectProject)" Targets="Restore"/>
         <!-- Building -->
-        <MSBuild Projects="$(ZenjectPath)\UnityProject\Assets\Plugins\Zenject\Source\Zenject.csproj"
-                 Properties="Configuration=$(Configuration);" RebaseOutputs="True"/>
+        <MSBuild Projects="$(ZenjectProject)" Properties="Configuration=$(Configuration);" RebaseOutputs="True"/>
     </Target>
 
 </Project>

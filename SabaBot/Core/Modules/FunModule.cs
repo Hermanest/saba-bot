@@ -52,6 +52,22 @@ public class FunModule(DiscordSocketClient client) : LocalizedInteractionModuleB
         await ReplyAsync(string.Format(message, user.Mention, percent));
     }
 
+    [SlashCommand("sudoku", "Commit sudoku"), UsedImplicitly]
+    private async Task HandleSudokuCommand(IUser user) {
+        await DeferAsync();
+        var message = await GetLocalizedKey("SudokuMessage");
+        await DeleteOriginalResponseAsync();
+        await ReplyAsync(string.Format(message, user.Mention));
+    }
+
+    [SlashCommand("pat", "Pat somebody"), UsedImplicitly]
+    private async Task HandleSudokuCommand(IUser me, IUser user) {
+        await DeferAsync();
+        var message = await GetLocalizedKey("PatMessage");
+        await DeleteOriginalResponseAsync();
+        await ReplyAsync(string.Format(message, me.Mention, user.Mention));
+    }
+
     [SlashCommand("love", "Shows how much you love the specified user."), UsedImplicitly]
     private async Task HandleLoveCommand(IUser user) {
         await DeferAsync();

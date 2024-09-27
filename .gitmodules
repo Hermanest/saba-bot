@@ -1,3 +1,4 @@
 [submodule "Zenject"]
 	path = Zenject
 	url = https://github.com/Hermanest/Zenject
+	branch = master-dotnet

@@ -43,6 +43,15 @@ public class FunModule(DiscordSocketClient client) : LocalizedInteractionModuleB
         await ReplyAsync(string.Format(message, user.Mention, percent));
     }
 
+    [SlashCommand("dice", "Roll a dice"), UsedImplicitly]
+    private async Task HandleDiceCommand(IUser user) {
+        await DeferAsync();
+        var message = await GetLocalizedKey("DiceMessage");
+        var percent = GetRandomNumber();
+        await DeleteOriginalResponseAsync();
+        await ReplyAsync(string.Format(message, user.Mention, percent));
+    }
+
     [SlashCommand("love", "Shows how much you love the specified user."), UsedImplicitly]
     private async Task HandleLoveCommand(IUser user) {
         await DeferAsync();

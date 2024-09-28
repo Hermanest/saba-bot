@@ -36,56 +36,51 @@ public class FunModule(DiscordSocketClient client) : LocalizedInteractionModuleB
 
     [SlashCommand("gay", "Shows how much you are gay"), UsedImplicitly]
     private async Task HandleGayCommand(IUser user) {
-        await DeferAsync();
-        var message = await GetLocalizedKey("GayMessage");
-        var percent = GetRandomNumber();
-        await DeleteOriginalResponseAsync();
-        await ReplyAsync(string.Format(message, user.Mention, percent));
+        await ReplyWithFormatAsync("GayMessage", user.Mention, GetRandomNumber());
     }
 
     [SlashCommand("dice", "Roll a dice"), UsedImplicitly]
     private async Task HandleDiceCommand() {
-        await DeferAsync();
-        var message = await GetLocalizedKey("DiceMessage");
-        var percent = GetRandomNumber();
-        await DeleteOriginalResponseAsync();
-        await ReplyAsync(string.Format(message, Context.User.Mention, percent));
+        await ReplyWithFormatAsync(
+            "DiceMessage",
+            Context.User.Mention,
+            GetRandomNumber()
+        );
     }
 
     [SlashCommand("sudoku", "Commit sudoku"), UsedImplicitly]
     private async Task HandleSudokuCommand() {
-        await DeferAsync();
-        var message = await GetLocalizedKey("SudokuMessage");
-        await DeleteOriginalResponseAsync();
-        await ReplyAsync(string.Format(message, Context.User.Mention));
+        await ReplyWithFormatAsync("SudokuMessage", Context.User.Mention);
     }
 
     [SlashCommand("pat", "Pat somebody"), UsedImplicitly]
     private async Task HandlePatCommand(IUser user) {
-        await DeferAsync();
-        var message = await GetLocalizedKey("PatMessage");
-        await DeleteOriginalResponseAsync();
-        await ReplyAsync(string.Format(message, Context.User.Mention, user.Mention));
+        await ReplyWithFormatAsync("PatMessage", Context.User.Mention, user.Mention);
     }
 
     [SlashCommand("love", "Shows how much you love the specified user."), UsedImplicitly]
     private async Task HandleLoveCommand(IUser user) {
-        await DeferAsync();
-        var message = await GetLocalizedKey("LoveMessage");
-        var percent = GetRandomNumber();
-        await DeleteOriginalResponseAsync();
-        await ReplyAsync(string.Format(message, Context.User.Mention, user.Mention, percent));
+        await ReplyWithFormatAsync(
+            "LoveMessage",
+            Context.User.Mention,
+            user.Mention,
+            GetRandomNumber()
+        );
     }
 
     [SlashCommand("liar", "Shows the user is liar or not"), UsedImplicitly]
     private async Task HandleLiarCommand(IUser user) {
-        await DeferAsync();
         var useAlt = GetRandomBool(1);
         var liar = GetRandomBool();
         var key = liar ? useAlt ? "AltLiarMessage" : "LiarMessage" : "NotLiarMessage";
-        var message = await GetLocalizedKey(key);
+        await ReplyWithFormatAsync(key, user.Mention);
+    }
+
+    private async Task ReplyWithFormatAsync(string messageKey, params object[] args) {
+        await DeferAsync();
+        var message = await GetLocalizedKey(messageKey);
         await DeleteOriginalResponseAsync();
-        await ReplyAsync(string.Format(message, user.Mention));
+        await ReplyAsync(string.Format(message, args));
     }
 
     private static bool GetRandomBool(int chance = 50) {

@@ -44,28 +44,28 @@ public class FunModule(DiscordSocketClient client) : LocalizedInteractionModuleB
     }
 
     [SlashCommand("dice", "Roll a dice"), UsedImplicitly]
-    private async Task HandleDiceCommand(IUser user) {
+    private async Task HandleDiceCommand() {
         await DeferAsync();
         var message = await GetLocalizedKey("DiceMessage");
         var percent = GetRandomNumber();
         await DeleteOriginalResponseAsync();
-        await ReplyAsync(string.Format(message, user.Mention, percent));
+        await ReplyAsync(string.Format(message, Context.User.Mention, percent));
     }
 
     [SlashCommand("sudoku", "Commit sudoku"), UsedImplicitly]
-    private async Task HandleSudokuCommand(IUser user) {
+    private async Task HandleSudokuCommand() {
         await DeferAsync();
         var message = await GetLocalizedKey("SudokuMessage");
         await DeleteOriginalResponseAsync();
-        await ReplyAsync(string.Format(message, user.Mention));
+        await ReplyAsync(string.Format(message, Context.User.Mention));
     }
 
     [SlashCommand("pat", "Pat somebody"), UsedImplicitly]
-    private async Task HandleSudokuCommand(IUser me, IUser user) {
+    private async Task HandlePatCommand(IUser user) {
         await DeferAsync();
         var message = await GetLocalizedKey("PatMessage");
         await DeleteOriginalResponseAsync();
-        await ReplyAsync(string.Format(message, me.Mention, user.Mention));
+        await ReplyAsync(string.Format(message, Context.User.Mention, user.Mention));
     }
 
     [SlashCommand("love", "Shows how much you love the specified user."), UsedImplicitly]

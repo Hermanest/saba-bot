@@ -10,11 +10,23 @@ using Image = SixLabors.ImageSharp.Image;
 namespace SabaBot.Modules;
 
 public class PatGifModule([Inject] HttpClient httpClient) : InjectableInteractionModuleBase {
-    [SlashCommand("patg", "Creates a pat gif of the specified user"), UsedImplicitly]
-    public async Task HandlePatCommand(IUser user) {
+    [SlashCommand("patu", "Creates a pat gif of the specified user"), UsedImplicitly]
+    public async Task HandlePatUserCommand(IUser user) {
+        await HandlePatCommand(user.GetAvatarUrl());
+    }
+
+    [SlashCommand("pate", "Creates a pat gif of the specified emote"), UsedImplicitly]
+    public async Task HandlePatEmoteCommand(string emote) {
+        if (Emote.TryParse(emote, out var em)) {
+            await HandlePatCommand(em.Url);
+        } else {
+            await RespondAsync("Invalid emote specified!", ephemeral: true);
+        }
+    }
+
+    private async Task HandlePatCommand(string imageUrl) {
         await DeferAsync();
-        var avatar = user.GetAvatarUrl();
-        var stream = await httpClient.TryOpenStreamAsync(avatar);
+        var stream = await httpClient.TryOpenStreamAsync(imageUrl);
         if (stream != null) {
             //making gif 
             var image = await Image.LoadAsync(stream);
@@ -33,7 +45,9 @@ public class PatGifModule([Inject] HttpClient httpClient) : InjectableInteractio
             );
             await stream.DisposeAsync();
         } else {
-            await ModifyOriginalResponseAsync(x => x.Content = "Failed to load avatar");
+            await ModifyOriginalResponseAsync(
+                x => x.Content = "Failed to load the image!"
+            );
         }
     }
 }

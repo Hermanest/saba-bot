@@ -12,7 +12,7 @@ public class FunModule(DiscordSocketClient client) : LocalizedInteractionModuleB
         await DeferAsync();
         //fetching
         var settings = await GetSettingsAsync();
-        var quote = settings.ReactionChampSettings.DeletedMessages.RandomOrDefault();
+        var quote = settings.ReactionChampSettings.DeletedMessages.RandomOrDefault(false);
         if (quote == null) {
             var str = await GetLocalizedKey("NoCringeMessage");
             await ModifyOriginalResponseAsync(x => x.Content = str);

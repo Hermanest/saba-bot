@@ -23,8 +23,13 @@ internal class ReactionChampService(
         Cacheable<IMessageChannel, ulong> channel,
         SocketReaction reaction
     ) {
-        if (reaction.Message is not { IsSpecified: true } m || m.Value.Author is not IGuildUser user) return;
+        if (reaction.Message is not { IsSpecified: true } m) {
+            return;
+        }
         var message = m.Value;
+        if (message.Author is not IGuildUser user || message.Content.Length == 0) {
+            return;
+        }
         //
         var guildSettings = await context.EnsureSettingsCreated(user.GuildId);
         var settings = guildSettings.ReactionChampSettings;
@@ -33,18 +38,22 @@ internal class ReactionChampService(
         if (!message.Reactions.TryGetValue(emote!, out var metadata)) return;
         //
         if (metadata.ReactionCount < settings.ReactionThreshold) return;
+        
         //formatting the message
         var key = localization[guildSettings.Locale, "ChampRemovedMessage"];
         var str = string.Format(key, message.Author.Mention, emote);
+        
         //starting tasks
         var deleteTask = message.DeleteAsync();
         var sendTask = message.Channel.SendMessageAsync(str);
+        
         //caching the message
         var cachedMessage = new RewindMessage {
             Text = message.Content,
             AuthorId = message.Author.Id
         };
-        settings.DeletedMessages.Add(cachedMessage);
+        settings.DeletedMessages.Shift(cachedMessage, 100);
+        
         //waiting for the tasks to finish
         await context.SaveChangesAsync();
         await deleteTask;

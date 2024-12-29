@@ -10,7 +10,17 @@ public static class CollectionExtensions {
         if (remove) source.RemoveAt(random);
         return item;
     }
-    
+
+    public static void Shift<T>(this IList<T> source, T value, int limit) {
+        var diff = source.Count - limit;
+        if (diff >= 0) {
+            for (var i = 0; i <= diff; i++) {
+                source.RemoveAt(0);
+            }
+        }
+        source.Add(value);
+    }
+
     public static int FindIndex<T>(this IEnumerable<T> source, Func<T, bool> predicate) {
         var index = 0;
         foreach (var item in source) {

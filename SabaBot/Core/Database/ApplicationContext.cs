@@ -9,8 +9,9 @@ public class ApplicationContext : DbContext {
     [UsedImplicitly]
     public ApplicationContext() {
         // do not remove, this constructor is used for migrations
+        _migration = true;
     }
-    
+
     [Inject]
     public ApplicationContext(ApplicationConfig config, [InjectOptional] ILoggerFactory? loggerFactory) {
         _config = config;
@@ -21,8 +22,9 @@ public class ApplicationContext : DbContext {
 
     public required DbSet<GuildSettings> Guilds { get; set; }
 
-    private readonly ApplicationConfig _config;
+    private readonly ApplicationConfig? _config;
     private readonly ILoggerFactory? _loggerFactory;
+    private bool _migration;
 
     public async Task<GuildSettings> EnsureSettingsCreated(ulong guildId) {
         var guild = await Guilds.FindAsync(guildId);
@@ -57,7 +59,11 @@ public class ApplicationContext : DbContext {
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-        optionsBuilder.UseLoggerFactory(_loggerFactory);
-        optionsBuilder.UseSqlite($"Data Source={_config.DbAddress}");
+        if (!_migration) {
+            optionsBuilder.UseLoggerFactory(_loggerFactory);
+            optionsBuilder.UseSqlite($"Data Source={_config!.DbAddress}");
+        } else {
+            optionsBuilder.UseSqlite("Data Source=/application.db");
+        }
     }
 }

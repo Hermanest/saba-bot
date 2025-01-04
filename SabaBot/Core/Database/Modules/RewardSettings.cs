@@ -6,7 +6,10 @@ namespace SabaBot.Database;
 [Owned]
 public class RewardSettings {
     [MaxLength(5)]
-    public string? RewardClanTag { get; set; }
+    public string? ClanTag { get; set; }
 
-    public DiscordMessage? MessageTemplate { get; set; }
+    public string? MessageText { get; set; }
+    public string[]? FilePaths { get; set; }
+    
+    public bool SetUp => MessageText != null || FilePaths != null;
 }

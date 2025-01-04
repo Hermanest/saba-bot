@@ -6,7 +6,7 @@ using SabaBot.Utils;
 
 namespace SabaBot.Modules;
 
-public class FunModule(DiscordSocketClient client) : LocalizedInteractionModuleBase {
+public class FunModule(DiscordSocketClient client) : AppInteractionModuleBase {
     [SlashCommand("cringe", "Shows a random cringe message"), UsedImplicitly]
     private async Task HandleCringeCommand() {
         await DeferAsync();

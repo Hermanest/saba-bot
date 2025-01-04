@@ -52,7 +52,7 @@ internal class ApplicationInstaller : Installer {
     }
     
     private void InstallLogger() {
-        var factory = LoggerFactory.Create(x => x.AddConsole().SetMinimumLevel(LogLevel.Debug));
+        var factory = LoggerFactory.Create(x => x.AddConsole().SetMinimumLevel(LogLevel.Information));
         var logger = factory.CreateLogger("Bot");
         Container.Bind<ILoggerFactory>().FromInstance(factory).AsSingle();
         Container.Bind<ILogger>().FromInstance(logger).AsTransient();

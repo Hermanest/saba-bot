@@ -7,7 +7,7 @@ namespace SabaBot.Modules;
 
 [DefaultMemberPermissions(GuildPermission.Administrator)]
 [Group("reaction-champ", "Group related to the reaction champ function.")]
-public class ReactionChampModule : LocalizedInteractionModuleBase {
+public class ReactionChampModule : AppInteractionModuleBase {
     //
     [SlashCommand("emote", "Sets the removal emote."), UsedImplicitly]
     private async Task HandleSetEmoteCommand(string emote) {

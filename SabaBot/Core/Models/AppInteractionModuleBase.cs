@@ -3,7 +3,7 @@ using Zenject;
 
 namespace SabaBot;
 
-public abstract class LocalizedInteractionModuleBase : InjectableInteractionModuleBase {
+public abstract class AppInteractionModuleBase : DiInteractionModuleBase {
     [Inject] private readonly ILocalization _localization = null!;
     [Inject] protected readonly ApplicationContext DbContext = null!;
 
@@ -17,6 +17,10 @@ public abstract class LocalizedInteractionModuleBase : InjectableInteractionModu
         return _localization[locale, key];
     }
 
+    protected async Task ModifyAsync(string? text = null) {
+        await ModifyOriginalResponseAsync(x => x.Content = text);
+    }
+    
     protected Task<GuildSettings> GetSettingsAsync() {
         return DbContext.EnsureSettingsCreated(Context.Guild.Id);
     }

@@ -9,7 +9,7 @@ using Image = SixLabors.ImageSharp.Image;
 
 namespace SabaBot.Modules;
 
-public class PatGifModule([Inject] HttpClient httpClient) : InjectableInteractionModuleBase {
+public class PatGifModule([Inject] HttpClient httpClient) : DiInteractionModuleBase {
     [SlashCommand("patu", "Creates a pat gif of the specified user"), UsedImplicitly]
     public async Task HandlePatUserCommand(IUser user) {
         await HandlePatCommand(user.GetAvatarUrl());

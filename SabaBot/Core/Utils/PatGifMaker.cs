@@ -1,3 +1,4 @@
+using SabaBot.Database;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.PixelFormats;
@@ -8,7 +9,9 @@ namespace SabaBot.Utils;
 internal static class PatGifMaker {
     static PatGifMaker() {
         for (var i = 0; i < PatImages.Length; i++) {
-            var pet = Image.Load<Rgba32>($"img/pet{i}.gif");
+            using var stream = Resources.ReadStaticResource($"PetFrames/pet{i}.gif");
+            
+            var pet = Image.Load<Rgba32>(stream);
             pet.Mutate(static x => x.Resize(Resolution));
             PatImages[i] = pet;
         }

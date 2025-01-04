@@ -17,7 +17,7 @@ public class ApplicationContext : DbContext {
         _config = config;
         _loggerFactory = loggerFactory;
         // ReSharper disable once VirtualMemberCallInConstructor
-        Database.EnsureCreated();
+        Database.Migrate();
     }
 
     public required DbSet<GuildSettings> Guilds { get; set; }
@@ -26,6 +26,12 @@ public class ApplicationContext : DbContext {
     private readonly ILoggerFactory? _loggerFactory;
     private bool _migration;
 
+    public async Task Modify(ulong guildId, Action<GuildSettings> action) {
+        var settings = await EnsureSettingsCreated(guildId);
+        action(settings);
+        await SaveChangesAsync();
+    }
+    
     public async Task<GuildSettings> EnsureSettingsCreated(ulong guildId) {
         var guild = await Guilds.FindAsync(guildId);
         if (guild == null) {
@@ -44,12 +50,7 @@ public class ApplicationContext : DbContext {
                 x => x.WithOwner()
             );
         modelBuilder.Entity<GuildSettings>()
-            .OwnsOne(x => x.RewardSettings)
-            .OwnsOne(x => x.MessageTemplate)
-            .OwnsMany(
-                x => x.Attachments,
-                x => x.WithOwner()
-            );
+            .OwnsOne(x => x.RewardSettings);
         modelBuilder.Entity<GuildSettings>()
             .OwnsOne(x => x.ReactionChampSettings)
             .OwnsMany(

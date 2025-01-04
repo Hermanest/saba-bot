@@ -4,7 +4,7 @@ using Zenject;
 
 namespace SabaBot;
 
-public abstract class InjectableInteractionModuleBase : InteractionModuleBase {
+public abstract class DiInteractionModuleBase : InteractionModuleBase {
     [UsedImplicitly]
     public IServiceProvider ServiceProvider {
         set {

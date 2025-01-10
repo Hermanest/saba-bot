@@ -7,6 +7,45 @@ using SabaBot.Utils;
 namespace SabaBot.Modules;
 
 public class FunModule(DiscordSocketClient client) : AppInteractionModuleBase {
+    [SlashCommand("shame", "Shows the wall of shame"), UsedImplicitly]
+    private async Task HandleShameCommand() {
+        await DeferAsync();
+        var settings = await GetSettingsAsync();
+
+        var messages = settings.ReactionChampSettings.DeletedMessages;
+        if (messages.Count == 0) {
+            await ModifyOriginalResponseAsync(x => x.Content = "There is no one to shame.");
+            return;
+        }
+
+        // Selecting users with most messages
+        var sortedUsers = messages
+            .GroupBy(x => x.AuthorId)
+            .OrderByDescending(x => x.Count())
+            .Take(10)
+            .Select(x => x.Key);
+
+        // Fetching users
+        var tasks = sortedUsers.Select(x => Context.Client.GetUserAsync(x)).ToArray();
+        await Task.WhenAll(tasks);
+
+        var first = tasks.First().Result;
+        var embed = new EmbedBuilder()
+            .WithAuthor(FormatUser(1, first), first.GetAvatarUrl())
+            .WithDescription(
+                tasks
+                    .Skip(1)
+                    .Zip(Enumerable.Range(2, 8))
+                    .Aggregate("", (x, y) => $"{x}\n**{FormatUser(y.Second, y.First.Result)}**")
+            );
+
+        await ModifyOriginalResponseAsync(x => x.Embed = embed.Build());
+
+        static string FormatUser(int num, IUser user) {
+            return $"#{num} @{user.Username}";
+        }
+    }
+
     [SlashCommand("cringe", "Shows a random cringe message"), UsedImplicitly]
     private async Task HandleCringeCommand() {
         await DeferAsync();

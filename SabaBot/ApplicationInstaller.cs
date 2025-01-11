@@ -48,7 +48,7 @@ internal class ApplicationInstaller : Installer {
         //Container.BindInterfacesTo<OpenAIChatBot>().AsSingle();
         Container.BindInterfacesTo<MessageRewindChatBot>().AsSingle();
         Container.BindInterfacesTo<MessageService>().AsSingle();
-        Container.BindInterfacesTo<ReactionChampService>().AsSingle();
+        Container.BindInterfacesAndSelfTo<ReactionChampService>().AsSingle();
     }
     
     private void InstallLogger() {

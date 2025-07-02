@@ -14,7 +14,7 @@ namespace SabaBot.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.0-preview.6.24327.4");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.6");
 
             modelBuilder.Entity("SabaBot.Database.GuildSettings", b =>
                 {
@@ -113,7 +113,7 @@ namespace SabaBot.Migrations
                                 .HasMaxLength(5)
                                 .HasColumnType("TEXT");
 
-                            b1.Property<string>("FilePaths")
+                            b1.PrimitiveCollection<string>("FilePaths")
                                 .HasColumnType("TEXT");
 
                             b1.Property<string>("MessageText")

@@ -9,13 +9,13 @@ public class ApplicationContext : DbContext {
         _config = config;
         _loggerFactory = loggerFactory;
     }
-    
+
     [UsedImplicitly]
     public ApplicationContext() {
         // do not remove, this constructor is used for migrations
         _migration = true;
     }
-    
+
     public required DbSet<GuildSettings> Guilds { get; set; }
 
     private readonly ApplicationConfig? _config;
@@ -27,7 +27,7 @@ public class ApplicationContext : DbContext {
         action(settings);
         await SaveChangesAsync();
     }
-    
+
     public async Task<GuildSettings> EnsureSettingsCreated(ulong guildId) {
         var guild = await Guilds.FindAsync(guildId);
         if (guild == null) {
@@ -47,6 +47,8 @@ public class ApplicationContext : DbContext {
             );
         modelBuilder.Entity<GuildSettings>()
             .OwnsOne(x => x.RewardSettings);
+        modelBuilder.Entity<GuildSettings>()
+            .OwnsOne(x => x.LeaveNotifSettings);
         modelBuilder.Entity<GuildSettings>()
             .OwnsOne(x => x.ReactionChampSettings)
             .OwnsMany(

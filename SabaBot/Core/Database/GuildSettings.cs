@@ -12,4 +12,5 @@ public class GuildSettings {
     public RewindSettings RewindSettings { get; set; } = new();
     public RewardSettings RewardSettings { get; set; } = new();
     public ReactionChampSettings ReactionChampSettings { get; set; } = new();
+    public LeaveNotifSettings LeaveNotifSettings { get; set; } = new();
 }

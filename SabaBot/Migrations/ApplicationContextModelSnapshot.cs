@@ -34,6 +34,25 @@ namespace SabaBot.Migrations
 
             modelBuilder.Entity("SabaBot.Database.GuildSettings", b =>
                 {
+                    b.OwnsOne("SabaBot.Database.LeaveNotifSettings", "LeaveNotifSettings", b1 =>
+                        {
+                            b1.Property<ulong>("GuildSettingsGuildId")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<ulong>("ChannelId")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<bool>("Enabled")
+                                .HasColumnType("INTEGER");
+
+                            b1.HasKey("GuildSettingsGuildId");
+
+                            b1.ToTable("Guilds");
+
+                            b1.WithOwner()
+                                .HasForeignKey("GuildSettingsGuildId");
+                        });
+
                     b.OwnsOne("SabaBot.Database.ReactionChampSettings", "ReactionChampSettings", b1 =>
                         {
                             b1.Property<ulong>("GuildSettingsGuildId")
@@ -164,6 +183,9 @@ namespace SabaBot.Migrations
 
                             b1.Navigation("Messages");
                         });
+
+                    b.Navigation("LeaveNotifSettings")
+                        .IsRequired();
 
                     b.Navigation("ReactionChampSettings")
                         .IsRequired();

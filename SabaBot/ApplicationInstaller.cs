@@ -49,6 +49,7 @@ internal class ApplicationInstaller : Installer {
         Container.BindInterfacesTo<MessageRewindChatBot>().AsSingle();
         Container.BindInterfacesTo<MessageService>().AsSingle();
         Container.BindInterfacesAndSelfTo<ReactionChampService>().AsSingle();
+        Container.BindInterfacesAndSelfTo<LeaveNotifService>().AsSingle();
     }
     
     private void InstallLogger() {

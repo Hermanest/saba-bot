@@ -1,15 +1,13 @@
 using Discord;
 using Discord.Interactions;
-using JetBrains.Annotations;
-using ModestTree;
+using JetBrains.Annotations; 
 using SabaBot.Utils;
-using SixLabors.ImageSharp;
-using Zenject;
+using SixLabors.ImageSharp; 
 using Image = SixLabors.ImageSharp.Image;
 
 namespace SabaBot.Modules;
 
-public class PatGifModule([Inject] HttpClient httpClient) : DiInteractionModuleBase {
+public class PatGifModule(HttpClient httpClient) : InteractionModuleBase {
     [SlashCommand("patu", "Creates a pat gif of the specified user"), UsedImplicitly]
     public async Task HandlePatUserCommand(IUser user) {
         await HandlePatCommand(user.GetAvatarUrl());

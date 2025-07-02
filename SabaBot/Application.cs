@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json;
-using Zenject;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using SabaBot.Database;
 
 namespace SabaBot;
 
@@ -14,16 +16,22 @@ internal static class Application {
         "your-llama-prompt-here"
     );
 
-    private static readonly DiContainer applicationContainer = new();
     private static readonly TaskCompletionSource taskCompletionSource = new();
 
     private static async Task Main(string[] args) {
-        //loading config
+        // Loading config
         var path = args.Length > 0 ? args[0] : DefaultConfigPath;
         if (!TryLoadConfig(path, out var config)) return;
-        //installing
-        applicationContainer.Bind<ApplicationConfig>().FromInstance(config!).AsSingle();
-        applicationContainer.Install<ApplicationInstaller>();
+        
+        // Installing
+        var services = new ServiceCollection();
+        services.AddSingleton(config!);
+        var provider = ApplicationInstaller.Install(services);
+        
+        // Migrating the DB if needed
+        var db = provider.GetRequiredService<ApplicationContext>();
+        await db.Database.MigrateAsync();
+        
         await taskCompletionSource.Task;
     }
 

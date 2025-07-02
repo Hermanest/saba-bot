@@ -6,7 +6,6 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using SabaBot.Database;
 using SabaBot.Utils;
-using Zenject;
 
 namespace SabaBot;
 
@@ -16,12 +15,11 @@ internal class OpenAIChatBot(
     ApplicationConfig config,
     ApplicationContext context,
     ILocalization localization,
-    [InjectOptional] ILogger? logger = null,
-    [InjectOptional] ILoggerFactory? loggerFactory = null
+    ILogger? logger = null,
+    ILoggerFactory? loggerFactory = null
 ) : IChatBot {
     private IChatCompletionService? _chatCompletionService;
 
-    [Inject]
     public void Initialize() {
         if (!Uri.TryCreate(config.LlamaAddress, UriKind.RelativeOrAbsolute, out var uri)) {
             logger?.LogError("Invalid LlamaAddress is specified. AI ChatBot won't be available!");

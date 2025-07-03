@@ -28,7 +28,7 @@ internal static class ApplicationInstaller {
         services.AddLoggingEnhanced();
 
         // Services
-        services.AddSingleton<InteractionManagementService>();
+        services.AddService<InteractionManagementService>();
         services.AddService<DiscordLoggerService>();
         services.AddService<MessageService>();
         services.AddService<ReactionChampService>();

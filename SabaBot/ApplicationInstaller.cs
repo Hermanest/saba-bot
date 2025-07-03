@@ -22,13 +22,19 @@ internal static class ApplicationInstaller {
         var interactionService = new InteractionService(socketClient);
         services.AddSingleton(interactionService);
         services.AddDbContext<ApplicationContext>();
-        services.AddSingleton<ILocalization, Localization>();
+        
+        // Localization and Resources
+        services.AddSingleton<Localization>();
+        services.AddSingleton<Resources>();
+        
+        services.AddSingleton<ILocalization>(x => x.GetRequiredService<Localization>());
+        services.AddSingleton<ISystemService>(x => x.GetRequiredService<Localization>());
 
         // Logging
         services.AddLoggingEnhanced();
 
         // Services
-        services.AddSingleton<InteractionManagementService>();
+        services.AddService<InteractionManagementService>();
         services.AddService<DiscordLoggerService>();
         services.AddService<MessageService>();
         services.AddService<ReactionChampService>();

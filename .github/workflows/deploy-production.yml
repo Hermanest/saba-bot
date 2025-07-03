@@ -41,7 +41,7 @@ jobs:
             docker load -i /home/${{ secrets.VPS_USER }}/${{ env.NAME }}.tar
             docker stop ${{ env.NAME }} || true
             docker rm ${{ env.NAME }} || true
-            docker run -d -p 80:80 \
+            docker run -d \
               -v /home/${{ secrets.VPS_USER }}/data:/data \
               --name ${{ env.NAME }} \
               ${{ env.NAME }}:latest \

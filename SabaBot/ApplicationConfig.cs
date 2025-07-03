@@ -5,5 +5,6 @@ public record ApplicationConfig(
     string DbAddress,
     string LlamaAddress,
     string LlamaModelId,
-    string LocalizationFile
+    string LocalizationFile,
+    string ResourcesPath
 );

@@ -60,7 +60,10 @@ public class ApplicationContext : DbContext {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         if (!_migration) {
             optionsBuilder.UseLoggerFactory(_loggerFactory);
-            optionsBuilder.UseSqlite($"Data Source={_config!.DbAddress}");
+            optionsBuilder.UseSqlite(
+                $"Data Source={_config!.DbAddress}",
+                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            );
         } else {
             optionsBuilder.UseSqlite("Data Source=/application.db");
         }

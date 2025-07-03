@@ -2,7 +2,6 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
-using Zenject;
 
 namespace SabaBot;
 
@@ -11,7 +10,7 @@ internal class ModuleLoader {
         DiscordSocketClient client,
         InteractionService interactionService,
         IServiceProvider serviceProvider,
-        [InjectOptional] ILogger? logger
+        ILogger? logger = null
     ) {
         _client = client;
         _interactionService = interactionService;

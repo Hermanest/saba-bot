@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json;
-using Zenject;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using SabaBot.Database;
 
 namespace SabaBot;
 
@@ -14,16 +16,22 @@ internal static class Application {
         "your-llama-prompt-here"
     );
 
-    private static readonly DiContainer applicationContainer = new();
     private static readonly TaskCompletionSource taskCompletionSource = new();
 
     private static async Task Main(string[] args) {
-        //loading config
+        // Loading config
         var path = args.Length > 0 ? args[0] : DefaultConfigPath;
         if (!TryLoadConfig(path, out var config)) return;
-        //installing
-        applicationContainer.Bind<ApplicationConfig>().FromInstance(config!).AsSingle();
-        applicationContainer.Install<ApplicationInstaller>();
+
+        // Installing
+        var services = new ServiceCollection();
+        services.AddSingleton(config!);
+        var provider = ApplicationInstaller.Install(services);
+
+        // Migrating the DB if needed
+        var db = provider.GetRequiredService<ApplicationContext>();
+        await db.Database.MigrateAsync();
+
         await taskCompletionSource.Task;
     }
 
@@ -42,6 +50,32 @@ internal static class Application {
         try {
             var json = File.ReadAllText(path);
             config = JsonConvert.DeserializeObject<ApplicationConfig>(json);
+
+            if (config == null) {
+                throw new Exception("Deserialization failure");
+            }
+
+            // Note that Path.Combine takes into account rooted paths, so:
+            // /home + /config.json = /config.json
+            // /home + config.json = /home/config.json
+
+            var configDir = Path.GetDirectoryName(path) ?? string.Empty;
+            var dbAddress = config.DbAddress;
+
+            {
+                var dbFile = Path.Combine(configDir, dbAddress);
+
+                // DB can be either a path or a network address, so we check if the file exists first
+                if (File.Exists(dbFile)) {
+                    dbAddress = dbFile;
+                }
+            }
+
+            config = config with {
+                DbAddress = dbAddress,
+                LocalizationFile = Path.Combine(configDir, config.LocalizationFile)
+            };
+
             return true;
         } catch (Exception ex) {
             Console.WriteLine($"Unable to load config:\n{ex}");

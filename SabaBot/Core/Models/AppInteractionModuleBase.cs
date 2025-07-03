@@ -1,20 +1,24 @@
-﻿using SabaBot.Database;
-using Zenject;
+﻿using Discord.Interactions;
+using JetBrains.Annotations;
+using SabaBot.Database;
 
 namespace SabaBot;
 
-public abstract class AppInteractionModuleBase : DiInteractionModuleBase {
-    [Inject] private readonly ILocalization _localization = null!;
-    [Inject] protected readonly ApplicationContext DbContext = null!;
+public abstract class AppInteractionModuleBase : InteractionModuleBase {
+    [UsedImplicitly]
+    public ILocalization Localization { get; init; } = null!;
+    
+    [UsedImplicitly]
+    public ApplicationContext DbContext { get; init; } = null!;
 
     protected async Task<string> GetLocalizedKey(string key) {
         var guildId = Context.Guild?.Id;
-        var locale = _localization.DefaultLocale;
+        var locale = Localization.DefaultLocale;
         if (guildId != null) {
             var settings = await GetSettingsAsync();
             locale = settings.Locale;
         }
-        return _localization[locale, key];
+        return Localization[locale, key];
     }
 
     protected async Task ModifyAsync(string? text = null) {

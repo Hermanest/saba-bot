@@ -1,23 +1,19 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Zenject;
 
 namespace SabaBot.Database;
 
 public class ApplicationContext : DbContext {
+    public ApplicationContext(ApplicationConfig config, ILoggerFactory? loggerFactory = null) {
+        _config = config;
+        _loggerFactory = loggerFactory;
+    }
+
     [UsedImplicitly]
     public ApplicationContext() {
         // do not remove, this constructor is used for migrations
         _migration = true;
-    }
-
-    [Inject]
-    public ApplicationContext(ApplicationConfig config, [InjectOptional] ILoggerFactory? loggerFactory) {
-        _config = config;
-        _loggerFactory = loggerFactory;
-        // ReSharper disable once VirtualMemberCallInConstructor
-        Database.Migrate();
     }
 
     public required DbSet<GuildSettings> Guilds { get; set; }
@@ -31,7 +27,7 @@ public class ApplicationContext : DbContext {
         action(settings);
         await SaveChangesAsync();
     }
-    
+
     public async Task<GuildSettings> EnsureSettingsCreated(ulong guildId) {
         var guild = await Guilds.FindAsync(guildId);
         if (guild == null) {
@@ -51,6 +47,8 @@ public class ApplicationContext : DbContext {
             );
         modelBuilder.Entity<GuildSettings>()
             .OwnsOne(x => x.RewardSettings);
+        modelBuilder.Entity<GuildSettings>()
+            .OwnsOne(x => x.LeaveNotifSettings);
         modelBuilder.Entity<GuildSettings>()
             .OwnsOne(x => x.ReactionChampSettings)
             .OwnsMany(

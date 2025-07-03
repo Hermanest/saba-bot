@@ -1,19 +1,15 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using SabaBot.Database;
-using Zenject;
 
 namespace SabaBot;
 
-internal class Bootstrapper {
-    [Inject]
-    public async void Start(
-        DiscordSocketClient client,
-        ApplicationConfig config,
-        ApplicationContext context,
-        [InjectOptional] IEnumerable<ISystemService>? systemServices,
-        [InjectOptional] IEnumerable<IService>? services
-    ) {
+internal class Bootstrapper(
+    DiscordSocketClient client,
+    ApplicationConfig config,
+    IEnumerable<ISystemService>? systemServices = null,
+    IEnumerable<IService>? services = null
+) {
+    public async void Start() {
         //bootstrapping system services
         if (systemServices != null) {
             try {
@@ -33,7 +29,7 @@ internal class Bootstrapper {
         }
     }
 
-    private void BootstrapServices(IEnumerable<IService> services) {
+    private static void BootstrapServices(IEnumerable<IService> services) {
         foreach (var service in services) {
             service.Start();
         }

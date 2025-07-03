@@ -1,66 +1,67 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Discord.Rest;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SabaBot.Database;
-using Zenject;
 
 namespace SabaBot;
 
-internal class ApplicationInstaller : Installer {
-    public override void InstallBindings() {
-        //adapters
-        Container.BindInterfacesAndSelfTo<ZenjectServiceScopeFactory>().AsSingle().Lazy();
-        Container.BindInterfacesAndSelfTo<ZenjectServiceProvider>().AsSingle().Lazy();
-        //base dependencies
+internal static class ApplicationInstaller {
+    public static ServiceProvider Install(IServiceCollection services) {
+        // Base dependencies
         var config = new DiscordSocketConfig {
             GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent,
             MessageCacheSize = 1000
         };
+
         var socketClient = new DiscordSocketClient(config);
-        Container.Bind<DiscordSocketClient>().FromInstance(socketClient).AsSingle().Lazy();
-        Container.Bind<DiscordRestClient>().FromInstance(socketClient.Rest).AsSingle().Lazy();
-        Container.Bind<InteractionService>().AsSingle().Lazy();
-        Container.Bind<ApplicationContext>().AsSingle().Lazy();
-        //logging
-        InstallLogger();
-        //services
-        InstallServices();
-        //installing apis
-        InstallAPI();
-        //starting
-        Container.Bind<ModuleLoader>().AsSingle().NonLazy();
-        Container.Bind<Bootstrapper>().AsSingle().NonLazy();
-        //a little workaround to start non-lazy bindings
-        Bootstrap();
+        services.AddSingleton(socketClient);
+        services.AddSingleton(socketClient.Rest);
+
+        var interactionService = new InteractionService(socketClient);
+        services.AddSingleton(interactionService);
+        services.AddDbContext<ApplicationContext>();
+        services.AddSingleton<ILocalization, Localization>();
+
+        // Logging
+        services.AddLoggingEnhanced();
+
+        // Services
+        services.AddSingleton<InteractionManagementService>();
+        services.AddService<DiscordLoggerService>();
+        services.AddService<MessageService>();
+        services.AddService<ReactionChampService>();
+        services.AddService<LeaveNotifService>();
+
+        // Installing apis
+        services.AddSingleton<HttpClient>();
+        services.AddSingleton<IBeatLeaderAPI, BeatLeaderAPI>();
+        services.AddSingleton<IChatBot, MessageRewindChatBot>();
+
+        // Starting
+        services.AddSingleton<ModuleLoader>();
+        services.AddSingleton<Bootstrapper>();
+
+        // A little workaround to start non-lazy bindings
+        var provider = services.BuildServiceProvider();
+        provider.GetRequiredService<ModuleLoader>();
+        provider.GetRequiredService<Bootstrapper>().Start();
+
+        return provider;
     }
 
-    private void InstallAPI() {
-        Container.Bind<HttpClient>().AsSingle();
-        Container.BindInterfacesTo<BeatLeaderAPI>().AsSingle();
-    }
-
-    private void InstallServices() {
-        Container.Bind(typeof(ISystemService), typeof(ILocalization)).To<Localization>().AsSingle();
-        Container.BindInterfacesTo<DiscordLoggerService>().AsSingle();
-        Container.BindInterfacesTo<InteractionManagementService>().AsSingle();
-        //Container.BindInterfacesTo<OpenAIChatBot>().AsSingle();
-        Container.BindInterfacesTo<MessageRewindChatBot>().AsSingle();
-        Container.BindInterfacesTo<MessageService>().AsSingle();
-        Container.BindInterfacesAndSelfTo<ReactionChampService>().AsSingle();
-        Container.BindInterfacesAndSelfTo<LeaveNotifService>().AsSingle();
-    }
-    
-    private void InstallLogger() {
+    private static void AddLoggingEnhanced(this IServiceCollection services) {
         var factory = LoggerFactory.Create(x => x.AddConsole().SetMinimumLevel(LogLevel.Information));
         var logger = factory.CreateLogger("Bot");
-        Container.Bind<ILoggerFactory>().FromInstance(factory).AsSingle();
-        Container.Bind<ILogger>().FromInstance(logger).AsTransient();
+        
+        services.AddSingleton(factory);
+        services.AddSingleton(logger);
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
     }
 
-    private void Bootstrap() {
-        Container.Resolve<ModuleLoader>();
-        Container.Resolve<Bootstrapper>();
+    private static void AddService<T>(this IServiceCollection services) where T : class, IService {
+        services.AddSingleton<T>();
+        services.AddSingleton<IService, T>();
     }
 }

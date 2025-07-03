@@ -1,30 +1,30 @@
 namespace SabaBot.Database;
 
-internal class Resources {
-    private const string MANAGED_RESOURCES_PATH = "Resources/Managed";
+public class Resources(ApplicationConfig config) {
     private const string STATIC_RESOURCES_PATH = "Resources/Static";
+    private readonly string _managedResourcesPath = config.ResourcesPath;
 
     public static Stream ReadStaticResource(string path) {
         return File.OpenRead($"{STATIC_RESOURCES_PATH}/{path}");
     }
 
-    public static Stream ReadManagedResource(string path) {
+    public Stream ReadManagedResource(string path) {
         EnsureManagedDirectoryExists(path);
-        return File.OpenRead($"{MANAGED_RESOURCES_PATH}/{path}");
+        return File.OpenRead($"{_managedResourcesPath}/{path}");
     }
 
-    public static Stream ReadManagedResource(ulong guild, string path) {
+    public Stream ReadManagedResource(ulong guild, string path) {
         return ReadManagedResource($"{guild}/{path}");
     }
 
-    public static Task<string?> WriteManagedResourceAsync(ulong guild, string path, Stream stream) {
+    public Task<string?> WriteManagedResourceAsync(ulong guild, string path, Stream stream) {
         return WriteManagedResourceAsync($"{guild}/{path}", stream);
     }
 
-    public static async Task<string?> WriteManagedResourceAsync(string path, Stream stream) {
+    public async Task<string?> WriteManagedResourceAsync(string path, Stream stream) {
         try {
             EnsureManagedDirectoryExists(path);
-            using var wStream = File.Open($"{MANAGED_RESOURCES_PATH}/{path}", FileMode.OpenOrCreate, FileAccess.Write);
+            using var wStream = File.Open($"{_managedResourcesPath}/{path}", FileMode.OpenOrCreate, FileAccess.Write);
             await stream.CopyToAsync(wStream);
 
             return null;
@@ -33,8 +33,8 @@ internal class Resources {
         }
     }
 
-    private static void EnsureManagedDirectoryExists(string file) {
-        var path = $"{MANAGED_RESOURCES_PATH}/{Path.GetDirectoryName(file)}";
+    private void EnsureManagedDirectoryExists(string file) {
+        var path = $"{_managedResourcesPath}/{Path.GetDirectoryName(file)}";
         if (!Directory.Exists(path)) {
             Directory.CreateDirectory(path);
         }

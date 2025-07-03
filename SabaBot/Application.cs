@@ -13,7 +13,8 @@ internal static class Application {
         "your-db-address-here",
         "your-llama-address-here",
         "your-llama-model-here",
-        "your-llama-prompt-here"
+        "your-llama-prompt-here",
+        "your-resources-path"
     );
 
     private static readonly TaskCompletionSource taskCompletionSource = new();
@@ -73,7 +74,8 @@ internal static class Application {
 
             config = config with {
                 DbAddress = dbAddress,
-                LocalizationFile = Path.Combine(configDir, config.LocalizationFile)
+                LocalizationFile = Path.Combine(configDir, config.LocalizationFile),
+                ResourcesPath = Path.Combine(configDir, config.ResourcesPath)
             };
 
             return true;

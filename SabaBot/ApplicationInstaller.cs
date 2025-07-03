@@ -23,6 +23,7 @@ internal static class ApplicationInstaller {
         services.AddSingleton(interactionService);
         services.AddDbContext<ApplicationContext>();
         services.AddSingleton<ILocalization, Localization>();
+        services.AddSingleton<Resources>();
 
         // Logging
         services.AddLoggingEnhanced();

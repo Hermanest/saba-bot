@@ -11,6 +11,7 @@ namespace SabaBot.Modules;
 [Group("reward", "Group related to the reward command.")]
 public class RewardModule(
     ApplicationContext context,
+    Resources resources,
     IBeatLeaderAPI beatLeaderAPI
 ) : AppInteractionModuleBase {
     //
@@ -18,6 +19,7 @@ public class RewardModule(
     [Group("setup", "A group responsible for the reward configuration.")]
     public class Config(
         ApplicationContext context,
+        Resources resources,
         HttpClient httpClient,
         ILogger? logger = null
     ) : InteractionModuleBase {
@@ -33,8 +35,7 @@ public class RewardModule(
                 }
             );
 
-            await ModifyOriginalResponseAsync(
-                x => {
+            await ModifyOriginalResponseAsync(x => {
                     x.Content = "Clan tag set!";
                 }
             );
@@ -51,8 +52,7 @@ public class RewardModule(
                 }
             );
 
-            await ModifyOriginalResponseAsync(
-                x => {
+            await ModifyOriginalResponseAsync(x => {
                     x.Content = "Message set!";
                 }
             );
@@ -66,7 +66,7 @@ public class RewardModule(
         ) {
             await DeferAsync(true);
 
-            var attachments = (Span<IAttachment?>) [attachment1, attachment2, attachment3];
+            var attachments = (Span<IAttachment?>)[attachment1, attachment2, attachment3];
             var tasks = new Task<string?>[attachments.Length];
             var filePaths = new string?[attachments.Length];
 
@@ -107,7 +107,7 @@ public class RewardModule(
                 return "Failed to open a stream.";
             }
             var path = $"Rewards/{attachment.Filename}";
-            var error = await Resources.WriteManagedResourceAsync(Context.Guild.Id, path, stream);
+            var error = await resources.WriteManagedResourceAsync(Context.Guild.Id, path, stream);
             return error;
         }
     }
@@ -154,7 +154,7 @@ public class RewardModule(
 
                 for (var i = 0; i < size; i++) {
                     var path = "Rewards/" + settings.FilePaths[i];
-                    var stream = Resources.ReadManagedResource(Context.Guild.Id, path);
+                    var stream = resources.ReadManagedResource(Context.Guild.Id, path);
                     var fileName = Path.GetFileName(settings.FilePaths[i]);
                     attachments[i] = new FileAttachment(stream, fileName);
                 }

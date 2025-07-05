@@ -10,12 +10,7 @@ namespace SabaBot;
 internal static class ApplicationInstaller {
     public static ServiceProvider Install(IServiceCollection services) {
         // Base dependencies
-        var config = new DiscordSocketConfig {
-            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent,
-            MessageCacheSize = 1000
-        };
-
-        var socketClient = new DiscordSocketClient(config);
+        var socketClient = new DiscordSocketClient(ApplicationConfig.DiscordConfig);
         services.AddSingleton(socketClient);
         services.AddSingleton(socketClient.Rest);
 

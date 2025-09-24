@@ -24,8 +24,14 @@ internal class MessageService(
     }
 
     private async Task HandleMessageReceived(SocketMessage message) {
-        if (message is not SocketUserMessage userMessage || message.Author is not IGuildUser user) return;
-        if (message.Author.IsBot) return;
+        if (message is not SocketUserMessage userMessage || message.Author is not IGuildUser user) {
+            return;
+        }
+        
+        if (message.Author.IsBot || message.MentionedEveryone) {
+            return;
+        }
+        
         //checking
         var settings = await GetSettings(user.Guild.Id);
         var mentioned = message.MentionedUsers.Any(x => x.Id == client.CurrentUser.Id);

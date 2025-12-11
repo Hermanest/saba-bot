@@ -1,10 +1,12 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace SabaBot.Database;
 
 public class ApplicationContext : DbContext {
+    [ActivatorUtilitiesConstructor]
     public ApplicationContext(ApplicationConfig config, ILoggerFactory? loggerFactory = null) {
         _config = config;
         _loggerFactory = loggerFactory;

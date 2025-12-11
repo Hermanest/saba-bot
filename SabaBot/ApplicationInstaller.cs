@@ -17,6 +17,7 @@ internal static class ApplicationInstaller {
         var interactionService = new InteractionService(socketClient);
         services.AddSingleton(interactionService);
         services.AddDbContext<ApplicationContext>();
+        services.AddDbContextFactory<ApplicationContext>();
         
         // Localization and Resources
         services.AddSingleton<Localization>();

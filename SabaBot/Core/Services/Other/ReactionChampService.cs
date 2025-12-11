@@ -1,5 +1,6 @@
 using Discord;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using SabaBot.Database;
 using SabaBot.Utils;
 
@@ -7,7 +8,7 @@ namespace SabaBot;
 
 public class ReactionChampService(
     DiscordSocketClient client,
-    ApplicationContext context,
+    IDbContextFactory<ApplicationContext> contextFactory,
     ILocalization localization
 ) : IService, IDisposable {
     public void Start() {
@@ -26,18 +27,18 @@ public class ReactionChampService(
         if (message.Author.IsBot) {
             return "Message must belong to a user.";
         }
-        
-        var settings = await LoadGuildSettings(message);
+
+        var (settings, context) = await LoadGuildSettings(message);
         if (settings == null) {
             return "This command can be used only on guild channels.";
         }
-        
+
         var emote = LoadEmote(settings.ReactionChampSettings);
-        await AddMessageInternal(message, emote, settings);
+        await AddMessageInternal(message, emote, settings, context!);
         return null;
     }
 
-    private async Task AddMessageInternal(IUserMessage message, IEmote? emote, GuildSettings guildSettings) {
+    private async Task AddMessageInternal(IUserMessage message, IEmote? emote, GuildSettings guildSettings, ApplicationContext context) {
         //formatting the message
         var key = localization[guildSettings.Locale, "ChampRemovedMessage"];
         var str = string.Format(key, message.Author.Mention, emote?.ToString() ?? "");
@@ -72,8 +73,8 @@ public class ReactionChampService(
         if (message.Author.IsBot || message.Content.IsNullOrEmpty()) {
             return;
         }
-        
-        var guildSettings = await LoadGuildSettings(message);
+
+        var (guildSettings, context) = await LoadGuildSettings(message);
         if (guildSettings == null) {
             return;
         }
@@ -83,19 +84,23 @@ public class ReactionChampService(
         if (emote == null) {
             return;
         }
-        
+
         if (!message.Reactions.TryGetValue(emote, out var meta) || meta.ReactionCount < settings.ReactionThreshold) {
             return;
         }
 
-        await AddMessageInternal(message, emote!, guildSettings);
+        await AddMessageInternal(message, emote!, guildSettings, context);
     }
 
-    private async Task<GuildSettings?> LoadGuildSettings(IUserMessage message) {
+    private async Task<(GuildSettings?, ApplicationContext?)> LoadGuildSettings(IUserMessage message) {
         if (message.Author is not IGuildUser user) {
-            return null;
+            return (null, null);
         }
-        return await context.EnsureSettingsCreated(user.GuildId);
+
+        var ctx = await contextFactory.CreateDbContextAsync();
+        var res = await ctx.EnsureSettingsCreated(user.GuildId);
+
+        return (res, ctx);
     }
 
     private static IEmote? LoadEmote(ReactionChampSettings settings) {

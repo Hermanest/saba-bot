@@ -1,5 +1,6 @@
 using Discord;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SabaBot.Database;
 
@@ -7,7 +8,7 @@ namespace SabaBot;
 
 public class LeaveNotifService(
     DiscordSocketClient client,
-    ApplicationContext context,
+    IDbContextFactory<ApplicationContext> contextFactory,
     ILogger logger
 ) : IService, IDisposable {
     public void Dispose() {
@@ -19,7 +20,9 @@ public class LeaveNotifService(
     }
 
     private async Task HandleLeftGuild(SocketGuild guild, SocketUser user) {
+        var context = await contextFactory.CreateDbContextAsync();
         var settings = await context.Guilds.FindAsync(guild.Id);
+        
         if (settings == null || !settings.LeaveNotifSettings.Enabled) {
             return;
         }

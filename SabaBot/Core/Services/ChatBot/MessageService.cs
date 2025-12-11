@@ -1,12 +1,13 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using SabaBot.Database;
 
 namespace SabaBot;
 
 internal class MessageService(
     DiscordSocketClient client,
-    ApplicationContext context,
+    IDbContextFactory<ApplicationContext> contextFactory,
     IChatBot chatBot
 ) : IService {
     public void Start() {
@@ -17,31 +18,35 @@ internal class MessageService(
         client.MessageReceived -= HandleMessageReceived;
     }
 
-    private async Task<RewindSettings> GetSettings(ulong guildId) {
-        await context.EnsureSettingsCreated(guildId);
-        var settings = await context.Guilds.FindAsync(guildId);
-        return settings!.RewindSettings;
+    private async Task<(RewindSettings, ApplicationContext)> GetSettings(ulong guildId) {
+        var context = await contextFactory.CreateDbContextAsync();
+        var settings = await context.EnsureSettingsCreated(guildId);
+        
+        return (settings.RewindSettings, context);
     }
 
     private async Task HandleMessageReceived(SocketMessage message) {
         if (message is not SocketUserMessage userMessage || message.Author is not IGuildUser user) {
             return;
         }
-        
+
         if (message.Author.IsBot || message.MentionedEveryone) {
             return;
         }
-        
-        //checking
-        var settings = await GetSettings(user.Guild.Id);
+
+        // Checking
+        var (settings, context) = await GetSettings(user.Guild.Id);
         var mentioned = message.MentionedUsers.Any(x => x.Id == client.CurrentUser.Id);
         var replyResult = await CheckReplyNeeded(settings, userMessage, mentioned);
         var autoReplyResult = await CheckAutomaticReplyNeeded(settings, userMessage);
-        //if both failed
+        
+        // If both failed
         if (!replyResult && !autoReplyResult && !mentioned) {
             AddRewindMessage(settings, userMessage);
         }
-        //saving changes
+        
+        // Saving changes
+        // TODO: possible perf issues. Keep a scoped context and refresh it over time.
         await context.SaveChangesAsync();
     }
 
@@ -64,7 +69,7 @@ internal class MessageService(
         settings.CooldownCounter = 0;
         await chatBot.ReplyAsync(settings, message);
     }
-    
+
     private static void AddRewindMessage(RewindSettings settings, IUserMessage message) {
         if (string.IsNullOrEmpty(message.Content)) return;
         var rewindMessage = new RewindMessage {

@@ -8,6 +8,7 @@ namespace SabaBot.Modules;
 [Group("reaction-champ", "Group related to the reaction champ function.")]
 public class ReactionChampModule(ReactionChampService champService) : AppInteractionModuleBase {
     [DefaultMemberPermissions(GuildPermission.ManageGuild)]
+    [RequireUserPermission(GuildPermission.Administrator)]
     [Group("setup", "Group related to the reaction champ configuration.")]
     public class SetupModule : AppInteractionModuleBase {
         [SlashCommand("emote", "Sets the removal emote."), UsedImplicitly]
@@ -60,6 +61,7 @@ public class ReactionChampModule(ReactionChampService champService) : AppInterac
     }
 
     [DefaultMemberPermissions(GuildPermission.Administrator)]
+    [RequireUserPermission(GuildPermission.Administrator)]
     [MessageCommand("Add to cringe"), UsedImplicitly]
     public async Task HandleCringe(IMessage msg) {
         await DeferAsync(ephemeral: true);

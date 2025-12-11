@@ -13,9 +13,10 @@ public class RewardModule(
     ApplicationContext context,
     Resources resources,
     IBeatLeaderAPI beatLeaderAPI
-) : AppInteractionModuleBase {
-    //
+) : AppInteractionModuleBase
+{
     [DefaultMemberPermissions(GuildPermission.ManageGuild)]
+    [RequireUserPermission(GuildPermission.Administrator)]
     [Group("setup", "A group responsible for the reward configuration.")]
     public class Config(
         ApplicationContext context,

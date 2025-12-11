@@ -7,8 +7,8 @@ namespace SabaBot.Modules;
 
 [Group("rewind", "Group related to the rewind command.")]
 public class RewindModule : InteractionModuleBase {
-    //
     [DefaultMemberPermissions(GuildPermission.Administrator)]
+    [RequireUserPermission(GuildPermission.Administrator)]
     [Group("setup", "Allows you to setup the rewind command group.")]
     public class SetupModule(ApplicationContext context) : InteractionModuleBase {
         //

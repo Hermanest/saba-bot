@@ -6,6 +6,7 @@ using SabaBot.Utils;
 namespace SabaBot.Modules;
 
 [DefaultMemberPermissions(GuildPermission.ManageGuild)]
+[RequireUserPermission(GuildPermission.Administrator)]
 [Group("leave-notif", "Group related to the leave notifications function.")]
 public class LeaveNotifModule : AppInteractionModuleBase {
     [SlashCommand("enabled", "Sets is the module enabled or not."), UsedImplicitly]
